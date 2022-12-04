@@ -1,0 +1,163 @@
+service: aws-crud-lambda
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: '20201221'
+  region: us-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-west-2:906334160993:table/TaskTable
+        - arn:aws:dynamodb:us-west-2:906334160993:table/UserTable
+        - arn:aws:dynamodb:us-west-2:906334160993:table/StoreTable
+        - arn:aws:dynamodb:us-west-2:906334160993:table/CreditTable
+
+functions:
+  createUser:
+    handler: src/user/addUser.addUser
+    events:
+      - httpApi:
+          path: /users
+          method: post
+  getUsers:
+    handler: src/user/getUsers.getUsers
+    events:
+      - httpApi:
+          path: /users
+          method: get
+  getUser:
+    handler: src/user/getUser.getUser
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: get
+  updateUser:
+    handler: src/user/updateUser.updateUser
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: put
+  deleteUser:
+    handler: src/user/deleteUser.deleteUser
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: delete
+
+
+  createStore:
+    handler: src/store/addStore.addStore
+    events:
+      - httpApi:
+          path: /stores
+          method: post
+  getStores:
+    handler: src/store/getStores.getStores
+    events:
+      - httpApi:
+          path: /stores
+          method: get
+  getStore:
+    handler: src/store/getStore.getStore
+    events:
+      - httpApi:
+          path: /stores/{id}
+          method: get
+  updateStore:
+    handler: src/store/updateStore.updateStore
+    events:
+      - httpApi:
+          path: /stores/{id}
+          method: put
+  deleteStore:
+    handler: src/store/deleteStore.deleteStore
+    events:
+      - httpApi:
+          path: /stores/{id}
+          method: delete
+
+  createCredit:
+    handler: src/credit/addCredit.addCredit
+    events:
+      - httpApi:
+          path: /credits
+          method: post
+  getCredits:
+    handler: src/credit/getCredits.getCredits
+    events:
+      - httpApi:
+          path: /credits
+          method: get
+  getCredit:
+    handler: src/credit/getCredit.getCredit
+    events:
+      - httpApi:
+          path: /credits/{id}
+          method: get
+  updateCredit:
+    handler: src/credit/updateCredit.updateCredit
+    events:
+      - httpApi:
+          path: /credits/{id}
+          method: put
+  deleteCredit:
+    handler: src/credit/deleteCredit.deleteCredit
+    events:
+      - httpApi:
+          path: /credits/{id}
+          method: delete
+resources:
+  Resources:
+    TaskTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TaskTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+            
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: UserTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+    StoreTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StoreTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+    CreditTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: CreditTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+
+
+
+   
