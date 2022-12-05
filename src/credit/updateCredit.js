@@ -3,7 +3,7 @@ const AWS = require("aws-sdk");
 
 const updateCredit = async (event) => {
   const dynamodb = new AWS.DynamoDB.DocumentClient();
-  const { id } = event.pathParameters;
+  // const { id } = event.pathParameters;
 
   let { storeName, email, amount } = JSON.parse(event.body);
 
@@ -33,7 +33,7 @@ const updateCredit = async (event) => {
  }
  
   
-   //validate stores
+   //Check if storeName is in the database
 
    const stores = await dynamodb.scan({ TableName: "StoreTable" }).promise();
 
@@ -45,7 +45,7 @@ const updateCredit = async (event) => {
      }
    }} 
  
-   //validate users
+   //Check if email is in the database
  
    const users = await dynamodb.scan({ TableName: "UserTable" }).promise();
  
@@ -58,7 +58,7 @@ const updateCredit = async (event) => {
    }
    }
 
-  //Verify that the credit is not registered in the database
+   //Verify that the credit is not registered in the database
 
   let credits = await dynamodb.scan({ TableName: "CreditTable" }).promise();
 
@@ -72,6 +72,9 @@ amount=Number(oldAmount)+Number(credit.amount)
 if(amount<0){
   return  `The amount to debit of ${-(oldAmount)} exceeds the credit of ${credit.amount}` 
 }
+
+const id=credit.id
+
   await dynamodb
   .update({
     TableName: "CreditTable",

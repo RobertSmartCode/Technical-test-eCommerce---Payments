@@ -96,19 +96,19 @@ functions:
     handler: src/credit/getCredit.getCredit
     events:
       - httpApi:
-          path: /credits/{id}
+          path: /credits/id
           method: get
   updateCredit:
     handler: src/credit/updateCredit.updateCredit
     events:
       - httpApi:
-          path: /credits/{id}
+          path: /credits/id
           method: put
   deleteCredit:
     handler: src/credit/deleteCredit.deleteCredit
     events:
       - httpApi:
-          path: /credits/{id}
+          path: /credits/id
           method: delete
 resources:
   Resources:
