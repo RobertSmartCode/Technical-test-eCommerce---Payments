@@ -1,9 +1,7 @@
 const AWS = require("aws-sdk");
-const yup = require("yup");
 
-const schema = yup.object().shape({
-  storeName: yup.string().required()
-});
+const middy = require("@middy/core");
+const httpJSONBodyParser = require("@middy/http-json-body-parser");
 
 
 const updateStore = async (event) => {
@@ -11,12 +9,15 @@ const updateStore = async (event) => {
 
     const { id } = event.pathParameters;
 
-    const { storeName } = JSON.parse(event.body);
+    const { storeName } = event.body;
 
-    schema.validate(storeName).catch(function (err) {
-      err.storeName;
-    });
-    
+      //Validate that the storeName field is not empty
+      if( storeName.length == 0) {
+        return  {body: {
+          message: `The storeName is empty`
+        }
+      }}
+
       await dynamodb
         .update({
           TableName: "StoreTable",
@@ -39,6 +40,8 @@ const updateStore = async (event) => {
   
 };
 
+
 module.exports = {
-  updateStore
+  updateStore:middy(updateStore)
+  .use(httpJSONBodyParser())
 };

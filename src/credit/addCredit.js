@@ -1,6 +1,7 @@
 const { v4 } = require("uuid");
 const AWS = require("aws-sdk");
 
+
 const middy = require("@middy/core");
 const httpJSONBodyParser = require("@middy/http-json-body-parser");
 
@@ -9,7 +10,33 @@ const addCredit= async (event) => {
 
   const { storeName, email, amount } = event.body;
 
-  //validate stores
+ //Validate that the storeName field is not empty
+  if( storeName.length == 0) {
+   return  {body: {
+      message: `The storeName is empty`
+        }
+      }}
+
+ // Validate email
+emailRegex = /^(?:[^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*|"[^\n"]+")@(?:[^<>()[\].,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,63}$/i;
+ 
+ if (!emailRegex.test(email) || email.length == 0) {
+  return  {body: {
+    message: `Enter a valid email`
+  }
+}} 
+
+
+// Validate amount
+if( isNaN(amount) ) {
+  return  {body: {
+    message: `Enter a valid amount`
+  }
+} 
+}
+
+
+  //Check if storeName is in the database
 
   const stores = await dynamodb.scan({ TableName: "StoreTable" }).promise();
 
@@ -21,8 +48,7 @@ const addCredit= async (event) => {
     }
   }} 
 
-  //validate users
-
+  //Check if email is in the database
   const users = await dynamodb.scan({ TableName: "UserTable" }).promise();
 
   const user = users.Items.find(user => user.email===email);
@@ -67,8 +93,7 @@ const addCredit= async (event) => {
     .promise();
 
   return {
-    statusCode: 200,
-    body: JSON.stringify(newCredit),
+    newCredit
   };
   } catch (error) {
     console.log(error)

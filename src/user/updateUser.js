@@ -7,6 +7,16 @@ const updateUser = async (event) => {
 
   const { email } = JSON.parse(event.body);
 
+
+ // Validate email
+ emailRegex = /^(?:[^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*|"[^\n"]+")@(?:[^<>()[\].,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,63}$/i;
+ 
+ if (!emailRegex.test(email) || email.length == 0) {
+  return  {body: {
+    message: `Enter a valid email`
+  }
+}} 
+
   await dynamodb
     .update({
       TableName: "UserTable",

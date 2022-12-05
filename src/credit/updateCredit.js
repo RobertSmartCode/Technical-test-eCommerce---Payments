@@ -1,10 +1,37 @@
 const AWS = require("aws-sdk");
 
+
 const updateCredit = async (event) => {
   const dynamodb = new AWS.DynamoDB.DocumentClient();
   const { id } = event.pathParameters;
 
-  const { storeName, email, amount } = JSON.parse(event.body);
+  let { storeName, email, amount } = JSON.parse(event.body);
+
+  //Validate that the storeName field is not empty
+  if( storeName.length == 0) {
+    return  {body: {
+       message: `The storeName is empty`
+         }
+       }}
+ 
+  // Validate email
+ emailRegex = /^(?:[^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*|"[^\n"]+")@(?:[^<>()[\].,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,63}$/i;
+  
+  if (!emailRegex.test(email) || email.length == 0) {
+   return  {body: {
+     message: `Enter a valid email`
+   }
+ }} 
+ 
+ 
+ // Validate amount
+ if( isNaN(amount) ) {
+   return  {body: {
+     message: `Enter a valid amount`
+   }
+ } 
+ }
+ 
   
    //validate stores
 
@@ -33,14 +60,18 @@ const updateCredit = async (event) => {
 
   //Verify that the credit is not registered in the database
 
-  const credits = await dynamodb.scan({ TableName: "CreditTable" }).promise();
+  let credits = await dynamodb.scan({ TableName: "CreditTable" }).promise();
 
-  const credit = credits.Items.find(credit => credit.storeName===storeName && credit.email===email);
+  let credit = credits.Items.find(credit => credit.storeName===storeName && credit.email===email);
   
   if(!credit){   
     return  `User ${email} does not have a credit on file with store ${storeName}`     
   }
-
+const oldAmount=amount
+amount=Number(oldAmount)+Number(credit.amount)
+if(amount<0){
+  return  `The amount to debit of ${-(oldAmount)} exceeds the credit of ${credit.amount}` 
+}
   await dynamodb
   .update({
     TableName: "CreditTable",
@@ -53,11 +84,14 @@ const updateCredit = async (event) => {
   })
   .promise();
 
+   
   return {
     amount
   };
 };
 
+
 module.exports = {
   updateCredit
 };
+

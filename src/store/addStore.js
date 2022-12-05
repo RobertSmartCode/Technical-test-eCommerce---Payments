@@ -1,14 +1,10 @@
 const { v4 } = require("uuid");
 const AWS = require("aws-sdk");
-const yup = require("yup");
-
-const schema = yup.object().shape({
-  storeName: yup.string().required()
-});
-
 
 const middy = require("@middy/core");
 const httpJSONBodyParser = require("@middy/http-json-body-parser");
+
+
 
 const addStore = async (event) => {
 
@@ -16,10 +12,13 @@ const addStore = async (event) => {
 
       const { storeName } = event.body;
 
-      schema.validate(storeName).catch(function (err) {
-      err.storeName;
-    });
-
+      //Validate that the storeName field is not empty
+      if( storeName.length == 0) {
+        return  {body: {
+          message: `The storeName is empty`
+        }
+      }}
+ 
       const stores = await dynamodb.scan({ TableName: "StoreTable" }).promise();
 
       const store = stores.Items.find(store => store.storeName===storeName);
@@ -30,7 +29,6 @@ const addStore = async (event) => {
         }
       }} 
     
-      
 
   const id = v4();
   const newStore = {
@@ -55,6 +53,11 @@ const addStore = async (event) => {
   }
 };
 
+
+
 module.exports = {
-  addStore: middy(addStore).use(httpJSONBodyParser()),
+  addStore:middy(addStore)
+
+  .use(httpJSONBodyParser())
 };
+
